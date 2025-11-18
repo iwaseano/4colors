@@ -23,6 +23,8 @@ const LeafletMap: React.FC = () => {
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [mapType, setMapType] = useState<MapType>('tokyo23');
   const [showMapMenu, setShowMapMenu] = useState<boolean>(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState<boolean>(false);
+  const [showAbout, setShowAbout] = useState<boolean>(false);
   
   // 最新のselectedColorを参照するためのref
   const selectedColorRef = useRef<number>(0);
@@ -362,6 +364,25 @@ const LeafletMap: React.FC = () => {
         zIndex: 1000,
       }}>
         <button
+          onClick={() => setShowAbout(true)}
+          style={{
+            padding: '10px 15px',
+            backgroundColor: 'white',
+            border: '2px solid #333',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+            marginBottom: '10px',
+            width: '100%',
+            color: '#333'
+          }}
+        >
+          ❓ 四色定理とは？
+        </button>
+        
+        <button
           onClick={() => setShowMapMenu(!showMapMenu)}
           style={{
             padding: '10px 15px',
@@ -371,7 +392,8 @@ const LeafletMap: React.FC = () => {
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: 'bold',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+            width: '100%'
           }}
         >
           地図切替 {showMapMenu ? '▲' : '▼'}
@@ -423,6 +445,74 @@ const LeafletMap: React.FC = () => {
         )}
       </div>
 
+      {/* 四色定理の説明モーダル */}
+      {showAbout && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          padding: '20px'
+        }}
+        onClick={() => setShowAbout(false)}
+        >
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            borderRadius: '10px',
+            maxWidth: '600px',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            position: 'relative'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowAbout(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                padding: '5px 10px',
+                backgroundColor: 'transparent',
+                border: '1px solid #ddd',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                color: '#666'
+              }}
+            >
+              ✕
+            </button>
+            
+            <h2 style={{ marginTop: 0, color: '#333', fontSize: '24px' }}>四色定理とは？</h2>
+            
+            <p style={{ lineHeight: '1.8', color: '#555', fontSize: '15px' }}>
+              四色定理は「どんな平面上の地図でも、隣り合う領域を四色で塗り分けられる」という定理です。<br/>
+              1852年に提唱され、1976年にコンピュータを用いて初めて証明されました。<br/>
+              この方法は膨大な計算に依存するため、「エレガント」とは対極の「象のような証明」と揶揄されることもあります。<br/>
+              現在もコンピュータなしで証明する方法は見つかっていません。
+            </p>
+            
+            <p style={{ lineHeight: '1.8', color: '#555', fontSize: '15px' }}>
+              証明は非常に複雑ですが、問題自体は誰でも簡単に理解ができます。<br/>
+              実際に色を塗って試してみると、4色で十分であることがわかります。
+            </p>
+            
+            <p style={{ lineHeight: '1.8', color: '#555', fontSize: '15px', fontWeight: 'bold', marginBottom: 0 }}>
+              東京23区と、世界地図(258か国)でお試しください。
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* コントロールパネル */}
       <div style={{
         position: 'absolute',
@@ -430,16 +520,53 @@ const LeafletMap: React.FC = () => {
         right: '20px',
         zIndex: 1000,
         backgroundColor: 'white',
-        padding: '15px',
+        padding: isPanelCollapsed ? '10px' : '15px',
         borderRadius: '10px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
         textAlign: 'center',
-        maxWidth: '250px'
+        maxWidth: isPanelCollapsed ? 'auto' : '250px',
+        minWidth: isPanelCollapsed ? 'auto' : '250px'
       }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>四色問題</h3>
-        <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#666' }}>
-          色を選んで国をクリック
-        </p>
+        {isPanelCollapsed ? (
+          <button
+            onClick={() => setIsPanelCollapsed(false)}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: '#4ECDC4',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+            title="パネルを開く"
+          >
+            🎨
+          </button>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h3 style={{ margin: '0', fontSize: '18px', flex: 1 }}>四色問題</h3>
+              <button
+                onClick={() => setIsPanelCollapsed(true)}
+                style={{
+                  padding: '4px 8px',
+                  backgroundColor: 'transparent',
+                  color: '#666',
+                  border: '1px solid #ddd',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  fontSize: '12px'
+                }}
+                title="パネルを閉じる"
+              >
+                ✕
+              </button>
+            </div>
+            <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#666' }}>
+              色を選んで国をクリック
+            </p>
         
         {/* カラーパレット */}
         <div style={{ margin: '12px 0', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', justifyContent: 'center' }}>
@@ -550,6 +677,8 @@ const LeafletMap: React.FC = () => {
         <div style={{ fontSize: '10px', color: '#999', marginTop: '8px' }}>
           {mapType === 'world' ? 'ホイール:ズーム / ドラッグ:移動' : 'ホイール:ズームイン・アウト'}
         </div>
+        </>
+        )}
       </div>
 
       {/* 地図 */}
