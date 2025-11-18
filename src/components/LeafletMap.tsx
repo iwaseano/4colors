@@ -19,7 +19,6 @@ const LeafletMap: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<number>(0);
   const [geoData, setGeoData] = useState<FeatureCollection | null>(null);
   const [mapKey, setMapKey] = useState<number>(0);
-  const [geoJsonLayer, setGeoJsonLayer] = useState<L.GeoJSON | null>(null);
   const [checkResult, setCheckResult] = useState<string>('');
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [mapType, setMapType] = useState<MapType>('world');
@@ -66,13 +65,6 @@ const LeafletMap: React.FC = () => {
         // データが読み込まれない場合は「読み込み中...」が継続表示される
       });
   }, [mapType]);
-
-  const handleCountryClick = (countryName: string) => {
-    setCountryColors(prev => ({
-      ...prev,
-      [countryName]: selectedColor
-    }));
-  };
 
   const getFeatureStyle = (feature?: Feature<Geometry, any>): PathOptions => {
     if (!feature) return {};
@@ -579,7 +571,6 @@ const LeafletMap: React.FC = () => {
             noWrap={false}
           />
           <GeoJSON
-            ref={(layer) => setGeoJsonLayer(layer)}
             data={geoData}
             style={getFeatureStyle}
             onEachFeature={onEachFeature}
