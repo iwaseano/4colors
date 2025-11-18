@@ -25,6 +25,8 @@ const LeafletMap: React.FC = () => {
   const [showMapMenu, setShowMapMenu] = useState<boolean>(false);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
+  const [showMapChangeConfirm, setShowMapChangeConfirm] = useState<boolean>(false);
+  const [pendingMapType, setPendingMapType] = useState<MapType | null>(null);
   
   // 最新のselectedColorを参照するためのref
   const selectedColorRef = useRef<number>(0);
@@ -181,9 +183,9 @@ const LeafletMap: React.FC = () => {
 
   const handleMapTypeChange = (newMapType: MapType) => {
     if (Object.keys(countryColors).length > 0) {
-      if (!window.confirm('地図を切り替えると、現在の塗り分けがリセットされます。よろしいですか？')) {
-        return;
-      }
+      setPendingMapType(newMapType);
+      setShowMapChangeConfirm(true);
+      return;
     }
     setMapType(newMapType);
     setCountryColors({});
@@ -191,6 +193,24 @@ const LeafletMap: React.FC = () => {
     setShowResetConfirm(false);
     setShowMapMenu(false);
     setMapKey(prev => prev + 1);
+  };
+
+  const handleConfirmMapChange = () => {
+    if (pendingMapType) {
+      setMapType(pendingMapType);
+      setCountryColors({});
+      setCheckResult('');
+      setShowResetConfirm(false);
+      setShowMapMenu(false);
+      setMapKey(prev => prev + 1);
+    }
+    setShowMapChangeConfirm(false);
+    setPendingMapType(null);
+  };
+
+  const handleCancelMapChange = () => {
+    setShowMapChangeConfirm(false);
+    setPendingMapType(null);
   };
 
   const handleCheck = () => {
@@ -495,20 +515,89 @@ const LeafletMap: React.FC = () => {
             <h2 style={{ marginTop: 0, color: '#333', fontSize: '24px' }}>四色定理とは？</h2>
             
             <p style={{ lineHeight: '1.8', color: '#555', fontSize: '15px' }}>
-              四色定理は「どんな平面上の地図でも、隣り合う領域を四色で塗り分けられる」という定理です。<br/>
+              四色定理は<br/><b>「どんな平面上の地図でも、隣り合う領域を四色で塗り分けられる」</b><br/>という定理です。<br/><br/>
               1852年に提唱され、1976年にコンピュータを用いて初めて証明されました。<br/>
-              この方法は膨大な計算に依存するため、「エレガント」とは対極の「象のような証明」と揶揄されることもあります。<br/>
               現在もコンピュータなしで証明する方法は見つかっていません。
             </p>
             
             <p style={{ lineHeight: '1.8', color: '#555', fontSize: '15px' }}>
-              証明は非常に複雑ですが、問題自体は誰でも簡単に理解ができます。<br/>
-              実際に色を塗って試してみると、4色で十分であることがわかります。
+              証明は非常に複雑ですが、問題自体は誰でも簡単に理解できます。<br/>
+              実際に色を塗って試してみると、四色で十分であることがわかります。
             </p>
             
             <p style={{ lineHeight: '1.8', color: '#555', fontSize: '15px', fontWeight: 'bold', marginBottom: 0 }}>
               東京23区と、世界地図(258か国)でお試しください。
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* 地図切替確認モーダル */}
+      {showMapChangeConfirm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          padding: '20px'
+        }}
+        onClick={handleCancelMapChange}
+        >
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            borderRadius: '10px',
+            maxWidth: '400px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            textAlign: 'center'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginTop: 0, color: '#333', fontSize: '20px' }}>地図を切り替えますか？</h3>
+            
+            <p style={{ lineHeight: '1.6', color: '#555', fontSize: '15px' }}>
+              地図を切り替えると、現在の塗り分けがリセットされます。
+            </p>
+            
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button
+                onClick={handleConfirmMapChange}
+                style={{
+                  flex: 1,
+                  padding: '10px 20px',
+                  backgroundColor: '#FF4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                切り替える
+              </button>
+              <button
+                onClick={handleCancelMapChange}
+                style={{
+                  flex: 1,
+                  padding: '10px 20px',
+                  backgroundColor: '#666',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                キャンセル
+              </button>
+            </div>
           </div>
         </div>
       )}
