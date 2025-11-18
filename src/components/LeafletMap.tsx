@@ -21,7 +21,7 @@ const LeafletMap: React.FC = () => {
   const [mapKey, setMapKey] = useState<number>(0);
   const [checkResult, setCheckResult] = useState<string>('');
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
-  const [mapType, setMapType] = useState<MapType>('world');
+  const [mapType, setMapType] = useState<MapType>('tokyo23');
   const [showMapMenu, setShowMapMenu] = useState<boolean>(false);
   
   // 最新のselectedColorを参照するためのref
